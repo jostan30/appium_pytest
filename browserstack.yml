@@ -1,0 +1,14 @@
+userName: ${BROWSERSTACK_USERNAME}
+accessKey: ${BROWSERSTACK_ACCESS_KEY}
+framework: pytest
+app: bs://3b46f3a1c5a572949f20985149454d80494fa0c6
+projectName: Wikipedia-Android-E2E
+buildName: wikipedia-e2e-single-session
+platforms:
+  - platformName: android
+    deviceName: Samsung Galaxy S23
+    platformVersion: "13.0"
+parallelsPerPlatform: 1
+browserstackLocal: false
+debug: true
+networkLogs: true
