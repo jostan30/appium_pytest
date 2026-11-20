@@ -4,31 +4,35 @@ pipeline {
     environment {
         PROJECT_NAME = 'WikipediaApp'
         COMPONENT_NAME = 'AndroidE2E'
-        
-        // SOLUTION: Override Jenkins' native BUILD_TAG. 
-        // The BrowserStack plugin will read this and automatically set 
-        // BROWSERSTACK_BUILD_NAME to match our custom format.
-        BUILD_TAG = "${PROJECT_NAME}-${COMPONENT_NAME}-${BUILD_NUMBER}"
     }
 
     stages {
-        stage('Apply Fix for Build Name Mismatch') {
+        stage('Apply Fix using withEnv') {
             steps {
-                browserstack(credentialsId: '2c59e499-cef3-4b55-af61-590ae34b4d50') {
-                    sh '''
-                        # Let's verify what the plugin actually injects now
-                        echo "Running tests with injected build name: $BROWSERSTACK_BUILD_NAME"
+                script {
+                    // Create the custom tag string
+                    def customBuildTag = "${env.PROJECT_NAME}-${env.COMPONENT_NAME}-${env.BUILD_NUMBER}"
+                    
+                    // Forcefully inject it into the environment for these specific steps
+                    withEnv(["BUILD_TAG=${customBuildTag}", "BROWSERSTACK_BUILD_NAME=${customBuildTag}"]) {
+                        
+                        browserstack(credentialsId: '2c59e499-cef3-4b55-af61-590ae34b4d50') {
+                            sh '''
+                                echo "Injected BUILD_TAG: $BUILD_TAG"
+                                echo "Injected BROWSERSTACK_BUILD_NAME: $BROWSERSTACK_BUILD_NAME"
 
-                        python3 -m venv .venv
-                        . .venv/bin/activate
-                        pip install --upgrade pip
-                        pip install pytest appium-python-client selenium browserstack-sdk
-                        browserstack-sdk pytest
-                    '''
+                                python3 -m venv .venv
+                                . .venv/bin/activate
+                                pip install --upgrade pip
+                                pip install pytest appium-python-client selenium browserstack-sdk
+                                browserstack-sdk pytest
+                            '''
+                        }
+
+                        // The publisher is also inside withEnv, so it looks for the custom tag
+                        browserStackReportPublisher 'app-automate'
+                    }
                 }
-
-                // The publisher will now look for our custom BUILD_TAG and succeed!
-                browserStackReportPublisher 'app-automate'
             }
         }
     }
