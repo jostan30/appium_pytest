@@ -4,17 +4,16 @@ pipeline {
     environment {
         PROJECT_NAME = 'WikipediaApp'
         COMPONENT_NAME = 'AndroidE2E'
+        // Override the core Jenkins BUILD_TAG which the plugin relies on
+        BUILD_TAG = "${PROJECT_NAME}-${COMPONENT_NAME}-${BUILD_NUMBER}"
     }
 
     stages {
         stage('Reproduce Build Name Mismatch') {
             steps {
+                // The plugin initializes here, reading the overridden BUILD_TAG
                 browserstack(credentialsId: '2c59e499-cef3-4b55-af61-590ae34b4d50') {
                     sh '''
-                        # Force-override the build name inside the shell right before the SDK runs
-                        export BROWSERSTACK_BUILD_NAME="${PROJECT_NAME}-${COMPONENT_NAME}-${BUILD_NUMBER}"
-                        echo "Running tests with custom build name: $BROWSERSTACK_BUILD_NAME"
-
                         python3 -m venv .venv
                         . .venv/bin/activate
                         pip install --upgrade pip
@@ -23,7 +22,8 @@ pipeline {
                     '''
                 }
 
-                // This step runs outside the shell and still looks up Jenkins' default BUILD_TAG
+                // The publisher will now fail because the plugin's internal tracking
+                // and the SDK's payload are out of sync due to the overridden core variable.
                 browserStackReportPublisher 'app-automate'
             }
         }
