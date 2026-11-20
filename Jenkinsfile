@@ -22,7 +22,7 @@ pipeline {
                         '''
 
                         // Keep this inside withEnv so the report uses the same build name.
-                        browserStackReportAut 'app-automate'
+                        browserStackReportAut 'automate'
                     }
                 }
             }
