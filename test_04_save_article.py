@@ -3,7 +3,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from locators import NAVIGATE_UP, SAVE_ACTION, SAVED_LIST_STATS, SAVED_TAB
 
 
-def test_save_article_appears_in_saved_list(driver, wait):
+def test_save_article_appears_in_saved_list(driver, wait, open_article):
     wait.until(EC.element_to_be_clickable(SAVE_ACTION)).click()
 
     # back to the search screen, then up to the main feed

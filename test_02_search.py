@@ -3,7 +3,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from locators import RESULT_TITLES, SEARCH_CARD, SEARCH_INPUT, SEARCH_TERM
 
 
-def test_search_returns_expected_first_result(driver, wait):
+def test_search_returns_expected_first_result(driver, wait, home_screen):
     wait.until(EC.element_to_be_clickable(SEARCH_CARD)).click()
     search_input = wait.until(EC.visibility_of_element_located(SEARCH_INPUT))
     search_input.send_keys(SEARCH_TERM)
