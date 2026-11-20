@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Setup & Run Wikipedia Android E2E Tests') {
             steps {
-                browserstack(credentialsId: 'YOUR_ACTUAL_CREDENTIAL_ID') {
+                browserstack(credentialsId: '2c59e499-cef3-4b55-af61-590ae34b4d50') {
                     sh '''
                         python3 -m venv .venv
                         . .venv/bin/activate
