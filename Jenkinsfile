@@ -12,7 +12,7 @@ pipeline {
                 browserstack(credentialsId: '2c59e499-cef3-4b55-af61-590ae34b4d50') {
                     script {
                         def customBuildName =
-                            "${env.PROJECT_NAME}-${env.COMPONENT_NAME}"
+                            "${env.PROJECT_NAME}-${env.COMPONENT_NAME}-${env.BUILD_NUMBER}"
 
                         withEnv([
                             "BROWSERSTACK_BUILD=${customBuildName}",
