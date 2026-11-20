@@ -1,31 +1,37 @@
 pipeline {
     agent any
 
+    environment {
+        PROJECT_NAME = 'WikipediaApp'
+        COMPONENT_NAME = 'AndroidE2E'
+    }
+
     stages {
-        stage('Set Custom Tag') {
+        stage('Run BrowserStack Tests and Report') {
             steps {
-                script {
-                    // Trick the plugin by overriding the actual JOB_NAME it uses to build the string
-                    env.JOB_NAME = "WikipediaApp-AndroidE2E"
-                    echo "Forced JOB_NAME to: ${env.JOB_NAME}"
-                }
-            }
-        }
-
-        stage('Run BrowserStack Tests') {
-            steps {
-                // Let's see if the plugin picks up the fake JOB_NAME
                 browserstack(credentialsId: '2c59e499-cef3-4b55-af61-590ae34b4d50') {
-                    sh '''
-                        python3 -m venv .venv
-                        . .venv/bin/activate
-                        pip install --upgrade pip
-                        pip install pytest appium-python-client selenium browserstack-sdk
-                        browserstack-sdk pytest
-                    '''
-                }
+                    script {
+                        def customBuildName =
+                            "${env.PROJECT_NAME}-${env.COMPONENT_NAME}-${env.BUILD_NUMBER}"
 
-                browserStackReportPublisher 'app-automate'
+                        withEnv([
+                            "BROWSERSTACK_BUILD=${customBuildName}",
+                            "BROWSERSTACK_BUILD_NAME=${customBuildName}"
+                        ]) {
+                            echo "BROWSERSTACK_BUILD_NAME for tests and report: ${env.BROWSERSTACK_BUILD_NAME}"
+
+                            sh '''
+                                python3 -m venv .venv
+                                . .venv/bin/activate
+                                pip install --upgrade pip
+                                pip install pytest appium-python-client selenium browserstack-sdk
+                                browserstack-sdk pytest
+                            '''
+
+                            browserStackReportAut 'app-automate'
+                        }
+                    }
+                }
             }
         }
     }
