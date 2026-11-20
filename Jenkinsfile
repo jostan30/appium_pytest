@@ -7,32 +7,26 @@ pipeline {
     }
 
     stages {
-        stage('Apply Fix using withEnv') {
+        stage('Run BrowserStack Tests - Snippet 2') {
             steps {
-                script {
-                    // Create the custom tag string
-                    def customBuildTag = "${env.PROJECT_NAME}-${env.COMPONENT_NAME}-${env.BUILD_NUMBER}"
+                browserstack(credentialsId: '2c59e499-cef3-4b55-af61-590ae34b4d50') {
                     
-                    // Forcefully inject it into the environment for these specific steps
-                    withEnv(["BUILD_TAG=${customBuildTag}", "BROWSERSTACK_BUILD_NAME=${customBuildTag}"]) {
-                        
-                        browserstack(credentialsId: '2c59e499-cef3-4b55-af61-590ae34b4d50') {
-                            sh '''
-                                echo "Injected BUILD_TAG: $BUILD_TAG"
-                                echo "Injected BROWSERSTACK_BUILD_NAME: $BROWSERSTACK_BUILD_NAME"
-
-                                python3 -m venv .venv
-                                . .venv/bin/activate
-                                pip install --upgrade pip
-                                pip install pytest appium-python-client selenium browserstack-sdk
-                                browserstack-sdk pytest
-                            '''
-                        }
-
-                        // The publisher is also inside withEnv, so it looks for the custom tag
-                        browserStackReportPublisher 'app-automate'
+                    // Snippet 2: Overriding the build name inside the wrapper using withEnv
+                    withEnv(["BROWSERSTACK_BUILD_NAME=${env.PROJECT_NAME}-${env.COMPONENT_NAME}-${env.BUILD_NUMBER}"]) {
+                        sh '''
+                            echo "Current BROWSERSTACK_BUILD_NAME is: $BROWSERSTACK_BUILD_NAME"
+                            
+                            python3 -m venv .venv
+                            . .venv/bin/activate
+                            pip install --upgrade pip
+                            pip install pytest appium-python-client selenium browserstack-sdk
+                            browserstack-sdk pytest
+                        '''
                     }
                 }
+
+                // Publisher runs after the wrapper and withEnv block
+                browserStackReportPublisher 'app-automate'
             }
         }
     }
