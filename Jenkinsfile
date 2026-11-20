@@ -1,16 +1,10 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.11-slim'
-            args '-u root:root'
-        }
-    }
+    agent any
 
     stages {
         stage('Setup & Run Wikipedia Android E2E Tests') {
             steps {
-                // Replace '<credential_id>' with your actual BrowserStack Credential ID
-                browserstack(credentialsId: '<credential_id>') {
+                browserstack(credentialsId: 'YOUR_ACTUAL_CREDENTIAL_ID') {
                     sh '''
                         python3 -m venv .venv
                         . .venv/bin/activate
@@ -20,8 +14,7 @@ pipeline {
                     '''
                 }
 
-                // Embeds the BrowserStack App Automate test report in Jenkins
-                browserStackReportPublisher 'automate'
+                browserStackReportPublisher 'app-automate'
             }
         }
     }
