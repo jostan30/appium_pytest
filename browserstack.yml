@@ -4,6 +4,7 @@ framework: pytest
 app: bs://3b46f3a1c5a572949f20985149454d80494fa0c6
 projectName: Wikipedia-Android-E2E
 buildName: ${BROWSERSTACK_BUILD_NAME}
+buildIdentifier: ""
 platforms:
   - platformName: android
     deviceName: Samsung Galaxy S23
